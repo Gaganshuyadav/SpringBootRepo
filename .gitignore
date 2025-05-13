@@ -1,6 +1,6 @@
 NotesMakingForJava.txt
-myfirstspringboot/src/main/resources/application-dev.yml
-myfirstspringboot/src/main/resources/application-prod.yml
-myfirstspringboot/src/main/resources/application.yml
-myfirstspringboot/src/main/resources/application.properties
-myfirstspringboot/target/classes
+src/main/resources/application-dev.yml
+src/main/resources/application-prod.yml
+src/main/resources/application.yml
+src/main/resources/application.properties
+target/classes
