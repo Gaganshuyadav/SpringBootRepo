@@ -1,11 +1,15 @@
 package com.gagansp1.myfirstsringboot.controller;
 
 import com.gagansp1.myfirstsringboot.entity.JournalEntry;
+import com.gagansp1.myfirstsringboot.entity.User;
 import com.gagansp1.myfirstsringboot.service.JournalEntryService;
+import com.gagansp1.myfirstsringboot.service.UserService;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -20,25 +24,35 @@ public class JournalEntryControllerV2withDB {
     @Autowired
     private JournalEntryService journalEntryService;
 
+    @Autowired
+    private UserService userService;
 
+    //create new enteries
     //if same id then update otherwise create new
     @PostMapping("/create")
     public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         try{
             myEntry.setDate(LocalDateTime.now());
-            journalEntryService.saveEntry(myEntry);
+            System.out.println(myEntry);
+            journalEntryService.saveEntry( myEntry, authentication.getName());
             return new ResponseEntity<>( myEntry, HttpStatus.CREATED);
         }
         catch (Exception err){
-         return  new ResponseEntity<>( HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("An error occurred while saving the entry");
+
         }
     }
 
+    //get all enteries
     @GetMapping("/all")
-    public List<JournalEntry> getAllEnteries(){
-        return journalEntryService.getAll();
+    public ResponseEntity<?> getAllEnteries(){
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return journalEntryService.getAll( authentication.getName());
     }
 
+    //get enteries by id
     @GetMapping("/id/{myId}")
     public ResponseEntity<Optional<JournalEntry>> getEntryById(@PathVariable ObjectId myId){
         Optional<JournalEntry> journalEntry = journalEntryService.getById(myId);
@@ -50,26 +64,39 @@ public class JournalEntryControllerV2withDB {
         }
     }
 
+    //delete enteries by id
     @DeleteMapping("/id/{myId}")
-    public ResponseEntity<?> deleteEntryById(@PathVariable ObjectId myId){
-        journalEntryService.deleteById(myId);
+    public ResponseEntity<?> deleteEntryById(@PathVariable ObjectId myId ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        journalEntryService.deleteById( myId, authentication.getName());
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/id/{myId}")
+    //upadte enteries
+    @PutMapping("/update/id/{myId}")
     public ResponseEntity<?> updateEntryById( @PathVariable ObjectId myId, @RequestBody JournalEntry newEntry ){
         JournalEntry old = journalEntryService.getById(myId).orElse(null);
         if(old!=null){
             //check title if not null or empty or ""
-            old.setTitle( newEntry.getTitle()!=null && !newEntry.getTitle().equals("") ? newEntry.getTitle() : old.getTitle() );
+            old.setTitle( newEntry.getTitle()!=null && !newEntry.getTitle().isEmpty() ? newEntry.getTitle() : old.getTitle() );
             //check title if not null or empty or ""
-            old.setContent( newEntry.getContent()!=null && !newEntry.getContent().equals("") ? newEntry.getContent() : old.getContent());
+            old.setContent( newEntry.getContent()!=null && !newEntry.getContent().isEmpty() ? newEntry.getContent() : old.getContent());
 
-            journalEntryService.saveEntry(old);
+            journalEntryService.save(old);
             return new ResponseEntity<>(old, HttpStatus.OK);
         }
 
         return new ResponseEntity<>( HttpStatus.NOT_FOUND);
+    }
+
+
+    //get all enteries by username
+    @GetMapping("/enteries/user")
+    public User getAllEnteriesOfUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = userService.getByUserName( authentication.getName());
+        System.out.println(user);
+        return user;
     }
 
 

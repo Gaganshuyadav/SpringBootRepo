@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/journal")
 public class JournalEntryController {
 
-    private  Map<ObjectId, JournalEntry> journalEnteries = new HashMap<>();
+    private final  Map<ObjectId, JournalEntry> journalEnteries = new HashMap<>();
 
     @GetMapping("/getallenteries")
     public List<JournalEntry> getAll(){
