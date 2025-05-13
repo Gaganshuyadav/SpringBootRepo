@@ -1,6 +1,5 @@
 NotesMakingForJava.txt
-src/main/resources/application-dev.yml
-src/main/resources/application-prod.yml
-src/main/resources/application.yml
-src/main/resources/application.properties
+myfirstsringboot/src/main/resources/application-prod.yml
+myfirstsringboot/src/main/resources/application.yml
+myfirstsringboot/src/main/resources/application.properties
 target/classes
